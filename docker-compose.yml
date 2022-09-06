@@ -1,0 +1,31 @@
+version: "3"
+
+services:
+  mysql_primary:
+    image: mysql:8.0
+    container_name: "mysql_primary"
+    env_file:
+      - ./primary/mysql_primary.env
+    ports:
+      - 7701:3306
+    volumes:
+      - ./primary/conf/mysql.conf.cnf:/etc/mysql/conf.d/mysql.conf.cnf
+      - ./primary/data:/var/lib/mysql
+
+  mysql_replica:
+    image: mysql:8.0
+    container_name: "mysql_replica"
+    env_file:
+      - ./replica/mysql_replica.env
+    ports:
+      - 7702:3306
+    depends_on:
+      - mysql_primary
+    volumes:
+      - ./replica/conf/mysql.conf.cnf:/etc/mysql/conf.d/mysql.conf.cnf
+      - ./replica/data:/var/lib/mysql
+
+networks:
+  default:
+    external:
+      name: mysql_replication
